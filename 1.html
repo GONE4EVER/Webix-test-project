@@ -10,16 +10,16 @@
 </head>
 <body>
     <style>
-        .bluebutton.webix_el_button button{
+        .align-center{
+            text-align:center;   
+        }
+        .bluebutton{
             color: white; 
             background: #3498db;
             border:0px;
         }
-        .div.webix_el_header {
-            border: 0px;
-        }
-        .div.webix_el_box {
-            border: 0px;    
+        .green{
+            color: green;
         }
         
     </style>
@@ -29,76 +29,87 @@
 		var side = { 
 			rows:[ 
 				{ 
+                    
 					view:"list",
 					id:"mylist",
-					width:300,
+                    minWidth: 130,
 					autoheight:true,
 					scroll:false,
-					data:[ "Dashboard", "Users", "Products", "Locations" ]
+					data:[ 
+                    {view:"button", type:"icon", icon:"cog", label:"Dashboard", value: "Dashboard", },
+                    {view:"button", type:"icon", icon:"user-o", label:"Users", value: "Users"},
+                    {view:"button", type:"icon", icon:"television", label:"Prodicts", value: "Prodicts"},
+                    {view:"button", type:"icon", icon:"map-marker", label:"Locations", value: "Locations"}, 
+                ]
                 },
                 { },
                 {
                     view: "template",
                     borderless: true,
                     height: 30,
-                    template: "<span class = 'webix_icon fa-check'>Connected</span>",
-                    css: {color: "green"}
+                    template: "<span class = 'webix_icon fa-check'></span>Connected",
+                    css: "align-center green" 
                 }
 			]
         };
-        
-		var main = { 
-			rows:[
-			    { 
-                    view:"datatable", 
-                    columns:[
-                        { id:"title", header:"Title", width:500},
-                        { id:"votes", header:"Votes", width: 200},
-                        { id:"year", header:"Year", width: 200},
-                        { id:"rating", header:"Rating", width: 150},
-                        { id:"rank", header:"Rank", width:150},                                                
-                    ],
-                    data: small_film_set, 
-                    autoConfig: true 
-                },
-			]
-        };
-        
-        
+             
         var header = {
             view: "toolbar", id: "header", height: 50, borderless: true, css: {background: "#3498db", border: 0},
             elements: [
-                {view: "template", template: "My App", type: "header", borderless: true} ,
-                { css: "bluebutton" , view:"button", type:"icon", icon:"user-o", label:"Profile", width:150, value: "Profile", autowidth: true}               
+                {view: "template", template: "<b>My App</b>", type: "header", borderless: true, icon: "user-0"} ,
+                {css: "bluebutton" , view:"button", type:"icon", icon:"user-o", label:"Profile", width:150, value: "Profile", autowidth: true}               
             ]};
 
+ 
+		var main = { 
+            minWidth: 130,
+            gravity: 3,
+			rows:[
+			    { 
+                    view:"datatable", 
+                    id: "mydata",
+                    data: small_film_set, 
+                    autoConfig: true,
+                },
+			]
+        }; 
+
         var toolbar = {
-            view:"form", id:"myForm", width:400, 
-                rows: [
-                    
-                       
-                        
-                            { view: "template", template: "Edit Films", type: "section"},
-                            { view:"text", label:"Title", labelWidth:100, placeholder: "Lock, stock and two smoking barrels"},                                       
-                            { view:"text", label:"Year", labelWidth:100, placeholder: "2007"},                                        
-                            { view:"text", label:"Rating", labelWidth:100, placeholder: "18+"},                                        
-                            { view:"text",  label:"Votes", labelWidth:100, placeholder: "777"},  
-                                
-                           
-                    
+                view:"form", id:"myform", minWidth: 200,
+                elements: [
+                    {view: "template", template: "Edit Films", type: "section"},
+                    {name: "title", id:"title",view:"text", label:"Title", labelWidth:100, invalidMessage:"the field is empty"},                                       
+                    {name:"year", id:"year", view:"text", label:"Year", labelWidth:100, invalidMessage:"invalid value"},                                        
+                    {name:"rating", id:"rating", view:"text", label:"Rating", labelWidth:100, invalidMessage:"invalid value" },                                        
+                    {name:"votes", id:"votes", view:"text",  label:"Votes", labelWidth:100, invalidMessage:"the field is empty"},
                     {
                         cols:[
-                            { view:"button", type: "form", value:"Add new"},
-                            { view:"button", value:"Clear"}
+                        { view:"button", value:"Add New" , type:"form", click:function(){
+                            if($$("myform").validate()){
+                                $$("mydata").add($$("myform").getValues());
+                                $$("myform").clear()
+                                webix.message("Successfully added")
+                            }
+                        }
+                        },
+                            { view:"button", value:"Clear", click:function(){
+                                $$("myform").clear(); 
+                                $$("myform").clearValidation();
+                                }
+                            }
                         ]
                     },
                     {}
-                ]
-                                         
-                
-            };
+                ],
+                rules:{
+                    title:webix.rules.isNotEmpty,
+                    year:function(year){ return (year>2000 && year <=(new Date().getFullYear()) ) },              
+                    rating:function(rating) { return (rating >= 0 && rating != "" && rating <=10) },
+                    votes:function(votes) { return (votes != "" && votes < 100000)}
+                }
+        };
         
-
+        
         var container = {
             height: containerHeight,
             cols:[side, main, toolbar]
@@ -110,7 +121,7 @@
             height:40,
             cols:[
                 
-                { align: "right", view: "template", template: "The soft is provided by <a href>https://webix.com</a>. All rights reserved",},
+                { align: "right", view: "template", template: "The soft is provided by <a href>https://webix.com</a>. All rights reserved",css:"align-center"},
                 
             ]};
 
