@@ -1,0 +1,130 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <title> Layout </title>
+  <script type="text/javascript" src="http://cdn.webix.com/edge/webix_debug.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://cdn.webix.com/edge/webix.css" >
+  <script type="text/javascript" src="testdata.js"></script>
+  <style type="text/css">
+  </style>
+</head>
+<body>
+    <style>
+        .bluebutton.webix_el_button button{
+            color: white; 
+            background: #3498db;
+            border:0px;
+        }
+        .div.webix_el_header {
+            border: 0px;
+        }
+        .div.webix_el_box {
+            border: 0px;    
+        }
+        
+    </style>
+
+  <script type="text/javascript" charset="utf-8">
+        
+		var side = { 
+			rows:[ 
+				{ 
+					view:"list",
+					id:"mylist",
+					width:300,
+					autoheight:true,
+					scroll:false,
+					data:[ "Dashboard", "Users", "Products", "Locations" ]
+                },
+                { },
+                {
+                    view: "template",
+                    borderless: true,
+                    height: 30,
+                    template: "<span class = 'webix_icon fa-check'>Connected</span>",
+                    css: {color: "green"}
+                }
+			]
+        };
+        
+		var main = { 
+			rows:[
+			    { 
+                    view:"datatable", 
+                    columns:[
+                        { id:"title", header:"Title", width:500},
+                        { id:"votes", header:"Votes", width: 200},
+                        { id:"year", header:"Year", width: 200},
+                        { id:"rating", header:"Rating", width: 150},
+                        { id:"rank", header:"Rank", width:150},                                                
+                    ],
+                    data: small_film_set, 
+                    autoConfig: true 
+                },
+			]
+        };
+        
+        
+        var header = {
+            view: "toolbar", id: "header", height: 50, borderless: true, css: {background: "#3498db", border: 0},
+            elements: [
+                {view: "template", template: "My App", type: "header", borderless: true} ,
+                { css: "bluebutton" , view:"button", type:"icon", icon:"user-o", label:"Profile", width:150, value: "Profile", autowidth: true}               
+            ]};
+
+        var toolbar = {
+            view:"form", id:"myForm", width:400, 
+                rows: [
+                    
+                       
+                        
+                            { view: "template", template: "Edit Films", type: "section"},
+                            { view:"text", label:"Title", labelWidth:100, placeholder: "Lock, stock and two smoking barrels"},                                       
+                            { view:"text", label:"Year", labelWidth:100, placeholder: "2007"},                                        
+                            { view:"text", label:"Rating", labelWidth:100, placeholder: "18+"},                                        
+                            { view:"text",  label:"Votes", labelWidth:100, placeholder: "777"},  
+                                
+                           
+                    
+                    {
+                        cols:[
+                            { view:"button", type: "form", value:"Add new"},
+                            { view:"button", value:"Clear"}
+                        ]
+                    },
+                    {}
+                ]
+                                         
+                
+            };
+        
+
+        var container = {
+            height: containerHeight,
+            cols:[side, main, toolbar]
+        };
+        
+        var footer = {
+            css: "footer",
+            id: "footer",
+            height:40,
+            cols:[
+                
+                { align: "right", view: "template", template: "The soft is provided by <a href>https://webix.com</a>. All rights reserved",},
+                
+            ]};
+
+		webix.ui({
+            id:"app",
+            view: "layout",
+            rows: [
+                header, 
+                container,
+                footer
+            ]            
+        });        
+        var containerHeight = $$("app").config.height - $$("footer").config.height - $$("header").config.height;
+
+  </script>
+</body>
+</html>
