@@ -2,11 +2,13 @@
 <head>
   <meta charset="utf-8">
   <title> Layout </title>
-  <script type="text/javascript" src="D:/webix/codebase/webix_debug.js"></script>
-  <link rel="stylesheet" type="text/css" href="D:/webix/codebase/webix.css" >
-  <script type="text/javascript" src="./data/testdata.js"></script>
-  <script type="text/javascript" src="./data/users.js"></script>
-  <script type="text/javascript" src="./data/products.js"></script>
+  <script type="text/javascript" src="./webix/codebase/webix_debug.js"></script>
+  <link rel="stylesheet" type="text/css" href="./webix/codebase/webix.css" >
+
+  <script type="text/javascript" src="./filmsView.js"></script>
+  <script type="text/javascript" src="./usersView.js"></script>
+  <script type="text/javascript" src="./treeTable.js"></script>  
+  
   <style type="text/css">
   </style>
 </head>
@@ -26,64 +28,17 @@
         .fltr{
             background-color: transparent;
         }
-        .chart {
-            color: rgba(red, rgb(255, 230, 1), rgb(0, 0, 255), 0.5)
+        .userViewButton {
+            border: 1px solid white;  
+            text-align: center;
         }
         
     </style>
     <script type="text/javascript" charset="utf-8">
-        
-        function addItem() {
-            if( $$("filmsForm").validate() ){ 
-                if ( $$("filmsForm").getValues().id > $$("datatable").count() || $$("filmsForm").getValues().id === "") {
-                    var obj = ($$("filmsForm").getValues()); 
-                    obj.title = obj.title.replace(/<\/?[^>]+(>|$)/g, "");
-                    obj.id = $$("datatable").count() + 1;   
-                    obj.rank = obj.id;                           
-                    $$("datatable").add(obj);
-                    $$("filmsForm").clear();
-                    webix.message({
-                        text:"Added successfully",
-                        type:"form", 
-                        expire: 2000
-                    });
-                } else {
-                    webix.message({
-                        text:"Attempt to assign new value to the existing item",
-                        type:"error", 
-                        expire: 2000
-                    });
-                }
-            }
-        }
-        
-        function updateItem() {
-            if($$("filmsForm").validate()) { 
-                var obj = ($$("filmsForm").getValues()); 
-                    obj.title = obj.title.replace(/<\/?[^>]+(>|$)/g, "");
-                $$("datatable").updateItem( obj.id , obj);
-                webix.message({
-                        text:"Updated successfully",
-                        type:"form", 
-                        expire: 2000
-                    });
-                $$("filmsForm").clear(); 
-            } else {
-                webix.message({
-                        text:"Update error",
-                        type:"error", 
-                        expire: 2000
-                    });
-            }
-        }
 
-        function deleteItem() {
-            if ( $$("filmsForm").getValues().id  ===  $$("datatable").count() ) { 
-                $$("datatable").remove(form.elements[1].text);
-                webix.message("Item deleted successfully");
-                $$("filmsForm").clear(); 
-            }
-        }
+        var filmCollection = new webix.DataCollection({
+            url: "./data/data.js"
+        });
 
 		var side = { 
 			rows:[ 
@@ -97,7 +52,7 @@
 					data:[ 
                         {icon:"cog",  value: "Dashboard", id: "Dashboard"},
                         {icon:"user-o", value: "Users", id: "Users"},
-                        {icon:"television", value: "Products", id: "Products"},
+                        {icon:"television", value: "Products", id: "productsTable"},
                         {icon:"map-marker", value: "Locations", id: "Locations"}
                     ],
                     on: {
@@ -126,145 +81,16 @@
             ]
         };
 
-        var data = { 
-            view:"datatable", 
-            id: "datatable",
-            data:  small_film_set, 
-            autoConfig: true,
-        };
-
-        filmSearchBar = {
-            cols: [
-            {
-                height: 35,
-                view:"toolbar",
-                elements:[
-                    { 
-                        icon: "search",    
-                        view:"combo", 
-                        id:"filmCombo", 
-                        label:"Filter list by", 
-                        labelWidth: 90,
-                        value:"Movie title", 
-                        options:["Movie title", "Year", "Votes"]
-                    },
-                    {view:"text", id:"filmSearchText", css:"fltr", labelWidth:170, borderless: true }
-                ]
-            },
-            ]
-        }
-
-        var table = {
-            rows: [
-                filmSearchBar,
-                data
-            ]
-        }
-        
-        var filmsForm = {
-                view:"form", id:"filmsForm", minWidth: 200, gravity:0.5,
-                elements: [
-                    {view: "template", template: "Edit Films", type: "section"},
-                    {name: "id", id:"id", view:"text", label: "ID", labelWidth: 100, hidden: true},
-                    {name: "title", id:"title",view:"text", label:"Title", labelWidth:100, invalidMessage:"the field is empty"},                                       
-                    {name:"year", id:"year", view:"text", label:"Year", labelWidth:100, invalidMessage:"invalid value"},                                        
-                    {name:"rating", id:"rating", view:"text", label:"Rating", labelWidth:100, invalidMessage:"invalid value" },                                        
-                    {name:"votes", id:"votes", view:"text",  label:"Votes", labelWidth:100, invalidMessage:"the field is empty"},
-                    {
-                        cols:[
-                            { view:"button", value:"Add New" , type:"form", 
-                                click:function(){
-                                    addItem();
-                                }
-                            },
-                            { view:"button", value:"Update", type: "form",
-                                click:function(){
-                                    updateItem();
-                                }
-                            },
-                            { view:"button", value:"Clear",
-                                click:function(){
-                                    $$("filmsForm").clear(); 
-                                    $$("filmsForm").clearValidation();
-                                }
-                            },
-                            { view:"button", value:"Delete", type: "danger",
-                                click:function(){
-                                    deleteItem();
-                                }
-                            },
-                        ]
-                    },
-                    {}
-                ],
-                rules:{
-                    title:function(title) { return ( title.trim() != "") },
-                    year:function(year){ return (year>1900 && year <=(new Date().getFullYear() ) ) },              
-                    rating:function(rating) { return (rating >= 0 && rating != "" && rating <=10) },
-                    votes:function(votes) { return (votes != "" && votes < 1000000)}
-                }
-        };
-        
-        userView = {
-            id: "userView",
-            rows:[
-                {
-                    cols: [
-                    {
-                        height: 35,
-                        view:"toolbar",
-                        elements:[
-                            { 
-                                icon: "search",    
-                                view:"combo", 
-                                id:"userCombo", 
-                                label:"Filter list by", 
-                                labelWidth: 90,
-                                value:"Name", 
-                                options:["Name", "Country"],
-                                width:200,
-                            },
-                            {view:"text", id:"userSearchText", label:"Filter users by name", css:"fltr", labelWidth:170, borderless: true }
-                        ]
-                    },
-                    ]
-                },
-                {
-                    view:"list",
-                    id:"userList",
-                    template:"<b>#name#</b>. #age# years old. From #country#",
-                    select:true,
-                    data: users
-                }
-            ]
-        }
-
-        userChart = {
-            view: "chart",
-            id: "userChart",
-            type:"bar",
-            border:true,
-            xAxis:{
-                template:"#country#"
-            },
-            yValue: "#age#",
-            yAxis:{
-                start:0,
-                end:70,
-                step:10,
-            },
-            data: users,
-        }
-
         var main = { 
             view: "multiview",
+            animate:{type:"slide", subtype:"out"},
             minWidth: 130,
             gravity: 3,
 			cells:[
 			    {
                     id: "Dashboard",
                     cols: [
-                        table, filmsForm
+                        datatable, filmsFormPanel
                     ]
                 },
                 {
@@ -274,37 +100,7 @@
                         userView, userChart
                     ],
                 },
-                {
-                    id: "Products",
-                    template: "Products View",
-                    view:"treetable",
-                    columns:[
-                        { 
-                            id:"productId",   
-                            template: "#id#",
-                            header:"ID", 
-                            width:50
-                        },
-                        { 
-                            id:"productTitle",
-                            header:"Title", 
-                            template:"{common.treetable()} #title#",
-                            width:300
-                        },
-                        { 
-                            template: function(obj){
-                                if (obj.price !== undefined)
-                                    return obj.price + "$";
-                                else
-                                    return "";
-                            },
-                            id:"productPrice",   
-                            header:"Price",  
-                            width:200
-                        }
-                    ],
-                    data: products       
-                },
+                treeTable,
                 {id: "Locations",template: "Locations View"}
 			]
         };
@@ -318,7 +114,11 @@
             ]
         };
 
-        webix.ui({
+        webix.protoUI({
+            name:"editlist"
+        }, webix.EditAbility, webix.ui.list);
+        
+        ui = webix.ui({
             id:"app",
             view: "layout",
             rows: [
@@ -331,52 +131,35 @@
                 footer
             ],
                      
-        });   
-
-        
-        //that actually doesn`t work
-        /*
-        $$("userCombo").attachEvent("OnChange", function() {
-            if ($$("userCombo").getValue() === "Name") {
-                userChart.xAxis.template = "#country#"
-                userChart.yValue = "#age#";
-            }
-            if ($$("userCombo").getValue() === "Country") {
-                userChart.xAxis.template = "#name#"
-                userChart.yValue = "#age#";
-            }
-                $$("userChart").refresh();            
-        });
-        */
-
-        $$("datatable").attachEvent("OnItemClick", function(id){ 
-            $$("filmsForm").clearValidation();
-            $$("filmsForm").setValues($$("datatable").getItem(id));
-            filmsForm.elements[1].text = id;
-        });    
+        }); 
  
         $$("userSearchText").attachEvent("onTimedKeyPress",function(){
             var value = this.getValue().toLowerCase();
-            $$("userList").filter(function(obj){
-                if ($$("userCombo").getValue() === "Name") {
-                    return obj.name.toLowerCase().indexOf(value)==0; 
-                }
-                if ($$("userCombo").getValue() === "Country") {
-                    return obj.country.toLowerCase().indexOf(value)==0;    
-                }   
+            $$("userList").filter(function(obj){   
+                return obj.name.toLowerCase().indexOf(value) == 0 || obj.country.toLowerCase().indexOf(value) == 0;                      
             })
         });
 
-        $$("filmSearchText").attachEvent("onTimedKeyPress",function(){
-            var value = this.getValue().toLowerCase();
-            $$("datatable").filter(function(obj){
-                if ( $$("filmCombo").getValue() === "Movie title")
-                    return obj.title.toLowerCase().indexOf(value)==0;
-                if ($$("filmCombo").getValue() === "Year")   //#sad 
-                    return obj.year.indexOf(value)==0;   
-            })
-        });
+        //doesn`t work
+        webix.UIManager.addHotKey("enter", function(view){
+            view.unselectAll();
+        }, ui);
         
+        $$("datatable").sync(filmCollection);
+        $$("dataview").sync(filmCollection);
+
+        $$("filmsFormPanel").bind($$("dataview"));
+        $$("filmsFormPanel").bind($$("datatable"));
+
+        $$("datatable").attachEvent("onAfterSelect", function (id){
+            $$("dataview").unselectAll();
+        });
+
+        $$("dataview").attachEvent("onAfterSelect", function (id){
+            console.log(id)
+            $$("datatable").unselectAll();
+        });
+
         var containerHeight = $$("app").config.height - $$("footer").config.height - $$("header").config.height;
 
   </script>
